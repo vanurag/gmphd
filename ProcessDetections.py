@@ -8,23 +8,23 @@ from scipy import special
 
 import gmphd
 
-relpath='flir_17_Sept_2013/ETHZ-ASL'
-imwidth=324
-imheight=256
+relpath='LOW-ALT-1_5'
+imwidth=512
+imheight=640
 sampfreq=20.0
 
 numdim=2
-maxpos=500.0
-maxvel=10.0
-accelnoise=5.0
-obsnoise=10.0
-birthrate=0.01
-clutterrate=2.0
+maxpos=50.0
+maxvel=100.0
+accelnoise=100.0
+obsnoise=0.01
+birthrate=10.0
+clutterrate=100
 survprob=0.99
-detecprob=0.95
-truncthres=1.0e-12
-mergethres=0.5
-maxhypot=20
+detecprob=0.7
+truncthres=0.0001
+mergethres=100.0
+maxhypot=5
 
 names=collections.defaultdict(list)
 detections=collections.defaultdict(list)
@@ -35,7 +35,8 @@ abspath=path.join(path.dirname(__file__),relpath)
 for file in os.listdir(path.join(abspath,'8bit')):
     if file.endswith('.png'):
         name,extension=file.split('.')
-        names[int(name)]=file
+        prefix,frame_id=name.split('_')
+        names[int(frame_id)]=file
 
 # Load the detections.
 with open(path.join(abspath,'detection.txt'),mode='r') as file:
@@ -47,7 +48,7 @@ if numdim==2:
 
     # Create the initial weights, means and covariances.
     initweight=numpy.array([0.5,0.5])
-    initmean=numpy.array([(0.0,float(imwidth)),(float(imheight),float(imheight)),(0.0,0.0),(0.0,0.0)])
+    initmean=numpy.array([(float(imwidth)/2,float(imwidth)/2),(float(imheight)/2,float(imheight)/2),(0.0,0.0),(0.0,0.0)])
     initcovar=numpy.diag(numpy.array([maxpos,maxpos,maxvel,maxvel])**2)[:,:,numpy.newaxis].repeat(2,axis=2)
 
     timestep=1.0/sampfreq
